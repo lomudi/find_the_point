@@ -1,0 +1,3 @@
+[submodule "lib/coordinates"]
+	path = lib/coordinates
+	url = https://github.com/sdumetz/coordinates.git
