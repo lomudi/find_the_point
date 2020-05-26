@@ -6,6 +6,7 @@
 Servo fingerOne;
 int analogPin = A5;
 int valAng;
+int servoAngles[537];
 
 float *getFingerPoint(float r, float phi)
 {
@@ -16,12 +17,14 @@ float *getFingerPoint(float r, float phi)
   return myPoint;
 }
 
-int stopFinger(float ang)
+int stopFinger(int ang)
 {
   if (ang >= 500)
   {
     fingerOne.attach(8);
-    fingerOne.write(500);
+    fingerOne.write(servoAngles[ang]);
+    Serial.println(servoAngles[ang]);
+    delay(150);
   }
   else
   {
@@ -29,19 +32,27 @@ int stopFinger(float ang)
   }
 }
 
+int readAngle()
+{
+  valAng = analogRead(analogPin);
+  return valAng;
+}
+
 int servoCalibration()
 {
   fingerOne.attach(8);
-  for (size_t i = 0; i < 2400; i++)
+  for (size_t i = 500; i < 2408; i++)
   {
     fingerOne.write(i);
-    delay(100);
-    valAng = analogRead(analogPin);
-    Serial.print(i);
-    Serial.print(" ");
-    Serial.print(valAng);
+    delay(150);
+    int currAng = readAngle();
+    servoAngles[currAng] = i;
+    Serial.print(currAng);
+    Serial.print(" - ");
+    Serial.print(servoAngles[currAng]);
     Serial.println("");
   }
+  fingerOne.detach();
 }
 
 void setup()
@@ -55,8 +66,9 @@ void setup()
 void loop()
 {
   // put your main code here, to run repeatedly:
-  //valAng = analogRead(analogPin);
-  //Serial.println(valAng);
-  //stopFinger(valAng);
-  delay(15); // waits for the servo to get there
+  int currServoAng = readAngle();
+  Serial.println(currServoAng);
+  stopFinger(currServoAng);
+
+  //delay(15); // waits for the servo to get there
 }
