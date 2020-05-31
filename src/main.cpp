@@ -22,9 +22,9 @@ int stopFinger(int ang)
   if (ang >= 500)
   {
     fingerOne.attach(8);
+    fingerOne.writeMicroseconds(0.5);
     fingerOne.write(servoAngles[ang]);
-    Serial.println(servoAngles[ang]);
-    delay(150);
+    delay(1000);
   }
   else
   {
@@ -41,14 +41,17 @@ int readAngle()
 int servoCalibration()
 {
   fingerOne.attach(8);
-  for (size_t i = 500; i < 2408; i++)
+  fingerOne.write(0);
+  delay(150);
+  for (size_t i = 536; i < 2418; i++)
   {
     fingerOne.write(i);
     delay(150);
     int currAng = readAngle();
     servoAngles[currAng] = i;
+    Serial.print("save into array box: ");
     Serial.print(currAng);
-    Serial.print(" - ");
+    Serial.print(" value = ");
     Serial.print(servoAngles[currAng]);
     Serial.println("");
   }
