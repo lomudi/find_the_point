@@ -3,10 +3,13 @@
 #include <Servo.h>
 #include <PID_v1.h>
 
-Servo fingerOne;
-int analogPin = A5;
+Servo servoOne;
+Servo servoTwo;
+int analogPin1 = A5;
+int analogPin2 = A0;
 int valAng;
-int servoAngles[537];
+int servoOneAngles[537];
+int servoTwoAngles[537];
 
 float *getFingerPoint(float r, float phi)
 {
@@ -17,61 +20,83 @@ float *getFingerPoint(float r, float phi)
   return myPoint;
 }
 
-int stopFinger(int ang)
+int stopFingerOne(int ang)
 {
   if (ang >= 500)
   {
-    fingerOne.attach(8);
-    fingerOne.writeMicroseconds(0.5);
-    fingerOne.write(servoAngles[ang]);
+    servoOne.attach(8);
+    servoOne.writeMicroseconds(0.5);
+    servoOne.write(servoOneAngles[ang]);
     delay(1000);
   }
   else
   {
-    fingerOne.detach();
+    servoOne.detach();
   }
 }
 
-int readAngle()
+int stopFingerTwo(int ang)
 {
-  valAng = analogRead(analogPin);
-  return valAng;
+  if (ang >= 500)
+  {
+    servoTwo.attach(4);
+    servoTwo.writeMicroseconds(0.5);
+    servoTwo.write(servoTwoAngles[ang]);
+    delay(1000);
+  }
+  else
+  {
+    servoTwo.detach();
+  }
 }
 
-int servoCalibration()
+int initCalibrationOfServos()
 {
-  fingerOne.attach(8);
-  fingerOne.write(0);
+  servoOne.attach(8);
+  servoOne.write(0);
+  servoTwo.attach(4);
+  servoTwo.write(0);
   delay(150);
+
   for (size_t i = 536; i < 2418; i++)
   {
-    fingerOne.write(i);
+    servoOne.write(i);
+    servoTwo.write(i);
     delay(150);
-    int currAng = readAngle();
-    servoAngles[currAng] = i;
-    Serial.print("save into array box: ");
-    Serial.print(currAng);
+    
+    int currAng1 = analogRead(analogPin1);
+    int currAng2 = analogRead(analogPin2);
+    
+    servoOneAngles[currAng1] = i;
+    Serial.print("save into servoOneAngles index: ");
+    Serial.print(currAng1);
     Serial.print(" value = ");
-    Serial.print(servoAngles[currAng]);
+    Serial.print(servoOneAngles[currAng1]);
+    Serial.println("");
+
+    servoTwoAngles[currAng2] = i;
+    Serial.print("save into servoTwoAngles index: ");
+    Serial.print(currAng2);
+    Serial.print(" value = ");
+    Serial.print(servoTwoAngles[currAng2]);
     Serial.println("");
   }
-  fingerOne.detach();
+  servoOne.detach();
+  servoTwo.detach();
 }
 
 void setup()
 {
-  // put your setup code here, to run once:
   Serial.begin(9600);
-  pinMode(analogPin, INPUT);
-  servoCalibration();
+  pinMode(analogPin1, INPUT);
+  pinMode(analogPin2, INPUT);
+  initCalibrationOfServos();
 }
 
 void loop()
 {
-  // put your main code here, to run repeatedly:
-  int currServoAng = readAngle();
-  Serial.println(currServoAng);
-  stopFinger(currServoAng);
-
-  //delay(15); // waits for the servo to get there
+  int currAng1 = analogRead(analogPin1);
+  int currAng2 = analogRead(analogPin2);
+  stopFingerOne(currAng1);
+  stopFingerTwo(currAng2);
 }
